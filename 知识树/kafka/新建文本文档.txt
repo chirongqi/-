@@ -1,0 +1,6 @@
+启动zookeeper
+
+启动kafka 进入到Kafka的安装目录
+./bin//windows//kafka-server-start.bat  ./config//server.properties
+
+kafka会按照默认配置，在9092端口上运行，并连接zookeeper的默认端口2181。

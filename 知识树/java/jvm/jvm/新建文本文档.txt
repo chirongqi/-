@@ -1,0 +1,60 @@
+-XX:+PrintGCDetails #输出详细GC日志模式
+-XX:+PrintTenuringDistribution #输出每次minor GC后新的存活周期的阈值
+-XX:+PrintGCTimeStamps #输出gc的触发时间
+
+例子
+-Xms512m -Xmx512m -Xmn128m -XX:+UseParNewGC -XX:+PrintGCDetails
+
+GC信息解读
+[GC (Allocation Failure) [ParNew: 115921K->5285K(118016K), 0.0052254 secs] 180750K->73759K(511232K), 0.0052742 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+
+Allocation Failure：表明本次引起GC的原因是因为在年轻代中没有足够的空间能够存储新的数据了。引起的GC
+ParNew：表明本次GC发生在年轻代并且使用的是ParNew垃圾收集器
+115921K->5285K(118016K), 0.0052254 secs ：ParNew垃圾收集器，新生代(eden 伊甸园)GC前该内存
+区域大小->收集后大小(该区域总容量)
+180750K->73759K(511232K), 0.0052742 secs：三个参数分别为：堆区(Heap)垃圾回收前的大小，堆区垃圾回收后的大小，堆区总大小
+[Times: user=0.00 sys=0.00, real=0.01 secs] 分别表示用户态耗时，内核态耗时和总耗时
+
+
+垃圾收集齐种类
+ParNew
+-XX:+UseParNewGC
+是一个Serial收集器的多线程版本，会使用多个CPU和线程完成垃圾收集工作
+（默认使用的线程数和CPU数相同，可以使用-XX：ParallelGCThreads参数限制）。
+该收集器采用复制算法回收内存，期间会停止其他工作线程，即Stop The World。
+
+
+JVM的垃圾回收机制有下面几种：
+
+年轻态几种垃圾收集方式：
+
+Serial (复制) 是一种stop-the-world(导致应用全部暂停，僵死一会儿), 使用单个GC线程进行复制收集
+
+将幸存对象从 Eden复制到幸存 Survivor空间，并且在幸存Survivor空间之间复制，直到它决定这些对象已经足够长了，在某个点一次性将它们复制到旧生代old generation.
+
+Parallel Scavenge (PS Scavenge)是一种stop-the-world, 使用多个GC线程实现复制收集。如同上面复制收集一样，但是它是并行使用多个线程。
+
+ParNew是一种stop-the-world, 使用多个GC线程实现的复制收集，区别于"Parallel Scavenge"在于它与CMS可搭配使用，它也是并行使用多个线程，内部有一个回调功能允许旧生代操作它收集的对象。
+
+ 
+
+旧生代几种垃圾收集方式：
+
+Serial Old (MarkSweepCompact) 是一种stop-the-world, 使用单个线程进行mark-sweep-compact(标志-清扫-压缩) 收集。
+
+Parallel Old (PS MarkSweep) 是一种使用多个GC线程压缩收集。
+
+ConcurrentMarkSweep (CMS) 是最并行，低暂停的收集器。垃圾回收算法在后台不会暂停应用线程情况下实现大部分垃圾回收工作。
+
+G1 使用 'Garbage First' 算法将堆空间划分为许多小空间。是一种跨年轻态和旧生代的回收。Java 7以后支持。
+
+
+
+apollo测试JVM参数
+-Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=4096m -XX:MaxNewSize=4096m -XX:SurvivorRatio=8
+-XX:+UseParNewGC -XX:ParallelGCThreads=4 -XX:MaxTenuringThreshold=9 -XX:+UseConcMarkSweepGC -XX:+DisableExplicitGC -XX:+UseCMSInitiatingOccupancyOnly -XX:+ScavengeBeforeFullGC -XX:+UseCMSCompactAtFullCollection -XX:+CMSParallelRemarkEnabled -XX:CMSFullGCsBeforeCompaction=9 -XX:CMSInitiatingOccupancyFraction=60 -XX:+CMSClassUnloadingEnabled -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+CMSPermGenSweepingEnabled -XX:CMSInitiatingPermOccupancyFraction=70 -XX:+ExplicitGCInvokesConcurrent -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationConcurrentTime -XX:+PrintHeapAtGC -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -Duser.timezone=Asia/Shanghai -Dclient.encoding.override=UTF-8 -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom
+
+
+jps -l  查看进程
+
+jmap -heap 97988  查看详情（Java Memory Map）

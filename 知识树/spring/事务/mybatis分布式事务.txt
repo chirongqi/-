@@ -1,0 +1,27 @@
+SpringManagedTransaction 实现了 mybatis事务接口
+
+mybatis调用 SpringManagedTransaction 获取数据库连接，首先从事务中获取（DataSourceUtils.getConnection(this.dataSource);  -> TransactionSynchronizationManager.getResource(dataSource)），没有的话在从新创建连接
+
+SqlSessionTemplate
+
+事务开启过程
+在mybatis执行过程前，ResultLoader-> newExecutor方法会获取TransactionFactory对象，并由TransactionFactory创建Transaction，此时TransactionFactory由spring提供SpringManagedTransactionFactory实现，通过
+重写newTransaction方法来创建SpringManagedTransaction事务对象。
+TransactionFactory对象初始化在SqlSessionFactoryBean中初始化，this.transactionFactory = new SpringManagedTransactionFactory();并存入倒mybatis全局变量中
+
+
+DefaultSqlSessionFactory.openSessionFromDataSource方法获取连接 开启事务
+
+spring 事务切面
+TransactionInterceptor切面
+SpringTransactionAnnotationParser切面参数解析，加了spring事务注解后，方法执行前，执行切面，切面会默认获取一个数据库连接，放入到线程中，后续的方法执行过程会首先判断线程中是否有事务
+
+
+事务管理者，可以自己写个新的 替换
+DataSourceTransactionManager
+
+
+
+设计思路，1：spring事务切面执行时，默认不给数据库连接，因为具体方法没有执行，不知道会是哪个数据库连接
+2：在spring事务切面之外增加全局变量，记录当前线程所用到的不同数据库连接，有异常时，所有连接回滚，没异常，则默认提交
+3.具体数据库操作执行获取数据库连接时，向全局变量中新增数据库连接
