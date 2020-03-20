@@ -1,0 +1,134 @@
+https://hub.docker.com/
+
+开启自启
+chkconfig docker on
+
+开启
+service docker start
+systemctl start docker
+
+关闭
+service docker stop
+systemctl stop docker
+
+docker服务地址
+/usr/lib/systemd/system/docker.service
+
+列出所有镜像
+docker images
+docker image ls
+
+搜索镜像
+docker search name
+一般image前没有分割的是官方镜像，描述是：The official build ...
+
+下载镜像
+docker pull name
+
+上传镜像
+docker push name
+
+删除镜像
+docker image rm [imageName]
+根据imageid删除
+docker rmi 9b4d3c761dbc
+
+hub加速
+打开/usr/lib/systemd/system/docker.service
+在ExecStart=/usr/bin/dockerd 后面追加
+ExecStart=/usr/bin/dockerd --registry-mirror=https://3e2hqrb6.mirror.aliyuncs.com
+
+查看容器
+docker container ps -a
+docker container ps
+
+列出本机正在运行的容器
+docker container ls
+
+列出本机所有容器，包括终止运行的容器
+docker container ls --all
+
+停止容器
+docker container stop （容器名称 或者 容器Id）
+docker stop (容器名称或者容器id)
+对于那些不会自动终止的容器，必须使用docker container kill 命令手动终止
+docker container kill [containID]
+
+启动容器（容器创建后，没有删除是可以启动的）
+docker start (容器名称或者容器id)
+docker container start [containerID]
+
+删除容器
+docker rm  -f（容器名称 容器id）
+-f 强制删除
+
+
+运行容器
+docker run hello-world
+运行指定版本镜像的容器
+docker run -t -i hello-world:latest
+-t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。
+
+
+docker container run \
+  --rm \
+  --name wordpress \
+  --volume "$PWD/":/var/www/html \
+  php:5.6-apache
+
+  --rm：停止运行后，自动删除容器文件。
+--name wordpress：容器的名字叫做wordpress。
+--volume "$PWD/":/var/www/html：将当前目录（$PWD）映射到容器的/var/www/html（Apache 对外访问的默认目录）。因此，当前目录的任何修改，都会反映到容器里面，进而被外部访问到。
+
+启动mysql容器
+$ docker container run \
+  -d \
+  --rm \
+  --name wordpressdb \
+  --env MYSQL_ROOT_PASSWORD=123456 \
+  --env MYSQL_DATABASE=wordpress \
+  mysql:5.7
+
+  -d：容器启动后，在后台运行。
+--rm：容器终止运行后，自动删除容器文件。
+--name wordpressdb：容器的名字叫做wordpressdb
+--env MYSQL_ROOT_PASSWORD=123456：向容器进程传入一个环境变量MYSQL_ROOT_PASSWORD，该变量会被用作 MySQL 的根密码。
+--env MYSQL_DATABASE=wordpress：向容器进程传入一个环境变量MYSQL_DATABASE，容器里面的 MySQL 会根据该变量创建一个同名数据库（本例是WordPress）。
+
+docker container run -d --rm --name spring-boot-study-run -p 8100:8100 spring-boot-study:0.0.1
+docker container run -d -p 8100:8100 -t spring-boot-study:0.0.1
+
+
+
+
+
+构建镜像Dockerfile文件
+docker build -t phpwithmysql 
+ docker build -f test1/Dockerfile -t spring-boot-study:0.0.1 test1/
+ docker build -t spring-boot-study:0.0.1 test1/
+
+
+
+进入docker容器 
+docker exec -it db3 /bin/sh 或者 docker exec -it d48b21a7e439 /bin/sh
+
+
+⏝docker inspect 查看详细信息
+docker inspect ubuntu:14.04
+
+
+搭建本地私有仓库
+docker run -d -p 5000:5000 registry
+默认情况下，会将仓库创建再容器的/temp/registry目录下 -v可以知道到具体路径
+docker run -d -p 5000:5000 -v /opt/data/registry:/temp/registry registry
+
+
+
+拉取dockerUI镜像。
+docker pull uifd/ui-for-docker
+
+2）启动dockerUI容器。
+docker run -it -d --name docker-web -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock docker.io/uifd/ui-for-docker
+
+访问 ip:9000
+http://192.168.36.129:9000/#/
