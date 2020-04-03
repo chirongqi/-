@@ -1,0 +1,58 @@
+// lumada表达式总结
+ 
+// 获取指定属性值的对象是否存在
+Optional<SkuOut> optionalSkuOut = wayOut.getSkus()
+		.stream()
+		.filter(skuOut -> skuOut.getIsMain() == 1)
+		.findAny();
+if (optionalSkuOut.isPresent()) {
+	return optionalSkuOut.get();
+
+}
+
+// 过滤转成List
+List<> list = list.stream().filter(item -> !"爱好".equals(item.getName())).collect(Collectors.toList());
+
+
+// 获取对象值
+Integer childTotal = Optional.ofNullable(orderWayCreateRequest.getChildTotal()).orElse(0); 
+
+// list转map
+Map<String, SkuOut> skuOutMap = wayOut.getSkus().parallelStream()
+		.collect(Collectors.toMap(SkuOut::getSkuCode, Function.identity(), (key1, key2) -> key2));
+				
+Map<DateTime, PriceData> datePriceMap = priceDataList.parallelStream()
+		.collect(Collectors.toMap(p1 -> DateUtil.beginOfDay(p1.getStartTime()), Function.identity(), (key1, key2) -> key2));
+
+					
+// 取最小值					
+priceDataList.parallelStream().min((m1, m2) -> m1.getMin().compareTo(m2.getMin())).get().getPrice();
+
+ 
+// 取list中对象的某个属性为新的集合
+list.stream().map(PriceData::getCreateTime).collect(Collectors.toSet())
+
+
+
+
+
+// JDK8 Lambda表达式写法
+List<String> list = Arrays.asList("I", "love", "you", "too");
+Collections.sort(list, (s1, s2) ->{// 省略参数表的类型
+    if(s1 == null)
+        return -1;
+    if(s2 == null)
+        return 1;
+    return s1.length()-s2.length();
+});
+
+
+
+				2020	2030	2040	2050
+60 -> 5.20		60~50	70~60	80~70	90~80 
+70 -> 2.1		50~40	60~50	70~60	80~70
+80 -> 2.1		40~30	50~40	60~50	70~60
+90 -> 2.0		30~20	40~30	50~40	60~50
+00 -> 1.41		20~10	30~20	40~30	50~40
+10 -> 1.4		10~0	20~10	30~20	40~30
+
