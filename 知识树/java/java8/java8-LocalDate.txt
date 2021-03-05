@@ -1,0 +1,7 @@
+// LocalDate ת Date
+Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+
+// DateתLocalDate
+LocalDateTime dateTime = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+

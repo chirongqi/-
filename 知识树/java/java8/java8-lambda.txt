@@ -32,8 +32,10 @@ priceDataList.parallelStream().min((m1, m2) -> m1.getMin().compareTo(m2.getMin()
 
 // 取list中对象的某个属性为新的集合
 list.stream().map(PriceData::getCreateTime).collect(Collectors.toSet())
+list.stream().map(PriceData::getCreateTime).collect(Collectors.toList())
 
-
+倒排序
+Collections.sort(splitCouponGoodsList, Comparator.comparing(CalculateGoodsOut::getBuyNumAmount).reversed());
 
 
 
