@@ -50,6 +50,13 @@ Collections.sort(list, (s1, s2) ->{// 省略参数表的类型
 });
 
 
+// 多次排序
+Collections.sort(getCanUseCouponList(), Comparator.comparing(CouponDetailOut::getCouponAmount).reversed().thenComparing(CouponDetailOut::getValidEndTime));
+
+List<StudentInfo> studentsSortName = studentList.stream()
+                .sorted(Comparator.comparing(StudentInfo::getAge).reversed().thenComparing(StudentInfo::getHeight))
+                .collect(Collectors.toList());
+
 
 				2020	2030	2040	2050
 60 -> 5.20		60~50	70~60	80~70	90~80 
