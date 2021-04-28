@@ -1,0 +1,3 @@
+-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/tomcat-logs/jvm_dump.log
+
+生成 heapdump.bin文件
